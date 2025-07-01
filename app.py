@@ -74,7 +74,12 @@ def process_image(img, header_text):
     draw2.rectangle([0, 0, 4, a4_height], fill="white")
 
     font_path = os.path.join(os.path.dirname(__file__), "NotoSansJP-Black.ttf")
+    if not os.path.exists(font_path):
+    raise FileNotFoundError(f"フォントファイルが見つかりません: {font_path}")
+try:
     font = ImageFont.truetype(font_path, 40)
+except Exception as e:
+    raise RuntimeError(f"フォントの読み込みに失敗しました: {e}")
 
     title_bbox = draw2.textbbox((0, 0), header_text, font=font)
     title_width = title_bbox[2] - title_bbox[0]
