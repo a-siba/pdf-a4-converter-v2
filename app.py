@@ -15,9 +15,10 @@ def extract_header_text(pdf_file):
         lines = text.strip().split('\n')
         for line in lines:
             if "定期テスト直前対策パーフェクト" in line:
-                parts = line.split()
-                if len(parts) > 1:
-                    return parts[-1]  # 最後の語（右端）を返す
+                parts = line.replace('\t', '　').split('　')  # 全角スペースで分割
+                for i, part in enumerate(parts):
+                    if "定期テスト直前対策パーフェクト" in part and i + 1 < len(parts):
+                        return parts[i + 1].strip()
         return lines[0]  # fallback
     return ""
 
@@ -76,7 +77,7 @@ def process_image(img, header_text):
 
     return a4_page1, a4_page2
 
-st.title("B4プリント → A4加工ツール（縦線除去・タイトル自動挿入付き）")
+st.title("B4プリント → A4加工ツール（縦線除去・右肩タイトル抽出）")
 uploaded_file = st.file_uploader("PDFファイルをアップロードしてください", type="pdf")
 
 if uploaded_file:
@@ -89,7 +90,7 @@ if uploaded_file:
     page1, page2 = process_image(img, header_input)
 
     st.image(page1, caption="A4ページ1（ヘッダーあり）", use_column_width=True)
-    st.image(page2, caption="A4ページ2（タイトル入り）", use_column_width=True)
+    st.image(page2, caption="A4ページ2（右肩タイトル付き）", use_column_width=True)
 
     pdf_bytes = io.BytesIO()
     page1.save(pdf_bytes, format="PDF", save_all=True, append_images=[page2])
