@@ -35,7 +35,7 @@ def pdf_to_image(pdf_file):
         img = Image.open(io.BytesIO(pix.tobytes("png")))
         return img
 
-def process_image(img, header_text):
+def process_image(img, header_text, corner_label):
     width, height = img.size
     midpoint = width // 2
     header_height = 380
@@ -84,7 +84,7 @@ except Exception as e:
     title_bbox = draw2.textbbox((0, 0), header_text, font=font)
     title_width = title_bbox[2] - title_bbox[0]
     title_position = (a4_width - title_width - 60, 40)
-    draw2.text(title_position, header_text, fill="black", font=font)
+    draw2.text(title_position, corner_label, fill="black", font=font)
 
     return a4_page1, a4_page2
 
@@ -98,7 +98,9 @@ if uploaded_file:
 
     uploaded_file.seek(0)
     img = pdf_to_image(uploaded_file)
-    page1, page2 = process_image(img, header_input)
+    # ファイル名から＜問題＞または＜解答＞を判定
+    file_label = "＜解答＞" if "解答" in uploaded_file.name else "＜問題＞"
+    page1, page2 = process_image(img, header_input, file_label)
 
     st.image(page1, caption="A4ページ1（ヘッダーあり）", use_container_width=True)
     st.image(page2, caption="A4ページ2（右肩タイトル付き）", use_container_width=True)
