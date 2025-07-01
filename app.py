@@ -13,7 +13,12 @@ def extract_header_text(pdf_file):
     text = first_page.extract_text()
     if text:
         lines = text.strip().split('\n')
-        return lines[0] if lines else ""
+        for line in lines:
+            if "定期テスト直前対策パーフェクト" in line:
+                parts = line.split()
+                if len(parts) > 1:
+                    return parts[-1]  # 最後の語（右端）を返す
+        return lines[0]  # fallback
     return ""
 
 def pdf_to_image(pdf_file):
