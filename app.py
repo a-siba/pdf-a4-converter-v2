@@ -89,8 +89,8 @@ if uploaded_file:
     img = pdf_to_image(uploaded_file)
     page1, page2 = process_image(img, header_input)
 
-    st.image(page1, caption="A4ページ1（ヘッダーあり）", use_column_width=True)
-    st.image(page2, caption="A4ページ2（右肩タイトル付き）", use_column_width=True)
+    st.image(page1, caption="A4ページ1（ヘッダーあり）", use_container_width=True)
+    st.image(page2, caption="A4ページ2（右肩タイトル付き）", use_container_width=True)
 
     pdf_bytes = io.BytesIO()
     page1.save(pdf_bytes, format="PDF", save_all=True, append_images=[page2])
