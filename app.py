@@ -7,20 +7,26 @@ import tempfile
 import io
 import os
 
-def extract_header_text(pdf_file):
-    reader = PdfReader(pdf_file)
-    first_page = reader.pages[0]
-    text = first_page.extract_text()
-    if text:
-        lines = text.strip().split('\n')
-        for line in lines:
-            if "定期テスト直前対策パーフェクト" in line:
-                parts = line.replace('\t', '　').split('　')  # 全角スペースで分割
-                for i, part in enumerate(parts):
-                    if "定期テスト直前対策パーフェクト" in part and i + 1 < len(parts):
-                        return parts[i + 1].strip()
-        return lines[0]  # fallback
-    return ""
+def extract_title_from_filename(filename):
+    name = os.path.splitext(os.path.basename(filename))[0]
+    parts = name.split("_")
+    title_parts = []
+    digits_seen = 0
+    for part in parts:
+        if part.isdigit():
+            digits_seen += 1
+        elif digits_seen >= 3:
+            title_parts.append(part)
+    tag = ""
+    if title_parts:
+        if title_parts[-1] == "問題":
+            tag = "＜問題＞"
+            title_parts = title_parts[:-1]
+        elif title_parts[-1] == "解答":
+            tag = "＜解答＞"
+            title_parts = title_parts[:-1]
+    return "，".join(title_parts) + tag
+    return "，".join(title_parts)
 
 def pdf_to_image(pdf_file):
     with fitz.open(stream=pdf_file.read(), filetype="pdf") as doc:
@@ -67,7 +73,7 @@ def process_image(img, header_text):
     draw2 = ImageDraw.Draw(a4_page2)
     draw2.rectangle([0, 0, 4, a4_height], fill="white")
 
-    font_path = "NotoSansJP-Black.ttf"
+    font_path = os.path.join(os.path.dirname(__file__), "NotoSansJP-Black.ttf")
     font = ImageFont.truetype(font_path, 40)
 
     title_bbox = draw2.textbbox((0, 0), header_text, font=font)
@@ -77,11 +83,11 @@ def process_image(img, header_text):
 
     return a4_page1, a4_page2
 
-st.title("B4プリント → A4加工ツール（縦線除去・右肩タイトル抽出）")
+st.title("B4プリント → A4加工ツール（ファイル名からタイトル抽出）")
 uploaded_file = st.file_uploader("PDFファイルをアップロードしてください", type="pdf")
 
 if uploaded_file:
-    header_candidate = extract_header_text(uploaded_file)
+    header_candidate = extract_title_from_filename(uploaded_file.name)
     st.write("### 自動抽出されたタイトル（編集可能）")
     header_input = st.text_input("タイトル文言", value=header_candidate)
 
