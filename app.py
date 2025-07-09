@@ -10,9 +10,15 @@ st.title("B4→A4 プリント変換アプリ（2段組→2ページ）")
 uploaded_file = st.file_uploader("PDFファイルをアップロードしてください", type=["pdf"])
 
 if uploaded_file:
-    header_input = st.text_input("ヘッダー（1ページ目中央に表示）を入力してください")
-
-    if header_input:
+            # ファイル名からタイトル部分を抽出
+        filename = os.path.splitext(uploaded_file.name)[0]
+        match = re.search(r"定期テスト直前対策_[^_]+_[^_]+_([^_]+)_([^_]+)_(.+)", filename)
+        if match:
+            unit1, unit2, label_raw = match.groups()
+            unit_combined = f"{unit1}，{unit2}"
+            header_text = f"{unit_combined}＜{label_raw}＞"
+        else:
+            header_text = "＜問題＞"
         # フォントパス指定と読み込み（診断付き）
         font_path = os.path.join(os.path.dirname(__file__), "NotoSansJP-Black.ttf")
         if not os.path.exists(font_path):
@@ -58,7 +64,19 @@ if uploaded_file:
             return page1, page2
 
         file_label = "＜解答＞" if "解答" in uploaded_file.name else "＜問題＞"
-        page1, page2 = process_image(img, header_input, file_label)
+            page1, page2 = process_image(img, header_text, file_label)
 
-        st.image(page1, caption="1ページ目（上段）", use_container_width=True)
-        st.image(page2, caption="2ページ目（下段）", use_container_width=True)
+                # PDFとして保存
+        from io import BytesIO
+        output_pdf = BytesIO()
+        page1.save(output_pdf, "PDF", resolution=300, save_all=True, append_images=[page2])
+        output_pdf.seek(0)
+
+        st.download_button(
+            label="📄 加工済みPDFをダウンロード",
+            data=output_pdf,
+            file_name="converted.pdf",
+            mime="application/pdf"
+        )
+
+        st.success("2ページに分割されたPDFが生成されました。")
