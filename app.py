@@ -64,7 +64,7 @@ if uploaded_file:
             return page1, page2
 
         file_label = "＜解答＞" if "解答" in uploaded_file.name else "＜問題＞"
-            page1, page2 = process_image(img, header_text, file_label)
+                    page1, page2 = process_image(img, header_text, file_label)
 
                 # PDFとして保存
         from io import BytesIO
