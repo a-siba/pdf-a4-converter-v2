@@ -47,10 +47,9 @@ if uploaded_file:
             draw1 = ImageDraw.Draw(page1)
             draw2 = ImageDraw.Draw(page2)
 
-            title_size = draw1.textbbox((0, 0), header_text, font=font)
-            title_width = title_size[2] - title_size[0]
-            title_position = ((a4_width - title_width) // 2, 80)
-            draw1.text(title_position, header_text, fill="black", font=font)
+            corner_size2 = draw2.textbbox((0, 0), header_text, font=font)
+            right_x2 = a4_width - corner_size2[2] - 60
+            draw2.text((right_x2, 40), header_text, font=font)
 
             corner_size = draw2.textbbox((0, 0), corner_label, font=font)
             right_x = a4_width - corner_size[2] - 60
