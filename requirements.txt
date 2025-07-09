@@ -1,5 +1,4 @@
-
 streamlit
-PyMuPDF
 Pillow
-PyPDF2
+PyMuPDF
+pdf2image
